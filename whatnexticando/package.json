@@ -18,6 +18,7 @@
     "react": "19.0.0-rc-f38c22b244-20240704",
     "react-dom": "19.0.0-rc-f38c22b244-20240704",
     "tailwindcss": "3.4.4",
+    "three": "^0.167.0",
     "typescript": "5.5.2",
     "use-debounce": "^10.0.1",
     "vercel": "^35.2.1",

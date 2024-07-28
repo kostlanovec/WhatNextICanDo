@@ -1,38 +1,167 @@
+"use client";
+
 import AcmeLogo from '@/app/ui/acme-logo';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useRef, useEffect } from "react";
 import '@/app/ui/global.css';
+import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export default function Page() {
-  return (
-    <main className="flex min-h-screen flex-col p-6">
-        <AcmeLogo />
-      <div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52">
-      <div
-  className="relative w-0 h-0 border-l-[15px] border-r-[15px] border-b-[26px] border-l-transparent border-r-transparent border-b-black"
-/>
-      </div>
-      <div className="mt-4 flex grow flex-col gap-4 md:flex-row">
+  const containerRef = useRef<HTMLDivElement>(null);
+  const diceRef = useRef<THREE.Group | null>(null);
 
-        <div className="flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20">
-          <p className={`text-xl text-gray-800 md:text-3xl md:leading-normal`}>
-            <strong>Welcome to Acme.</strong> This is the example for the{' '}
-            <a href="https://nextjs.org/learn/" className="text-pink-500">
-              Next.js Learn Course
-            </a>
-            , brought to you by Vercel.
-          </p>
-          <Link
-            href="/login"
-            className="flex items-center gap-5 self-start rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-400 md:text-base"
-          >
-            <span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
-          </Link>
-        </div>
-        <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
-          {/* Add Hero Images Here */}
-        </div>
-      </div>
-    </main>
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      containerRef.current?.appendChild(renderer.domElement);
+
+      camera.position.z = 0.5;
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(1, 1, 1).normalize();
+      scene.add(directionalLight);
+
+      const loader = new OBJLoader();
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.25;
+      controls.enableZoom = true;
+
+      loader.load(
+        'Models/dice.obj',
+        function (object: any) {
+          var box = new THREE.Box3().setFromObject(object);
+          var center = new THREE.Vector3();
+          box.getCenter(center);
+          object.position.sub(center);
+
+          object.traverse(function (child: any) {
+            if (child.isMesh) {
+              child.material = new THREE.MeshStandardMaterial({ color: 0xFF0000 });
+            }
+          });
+
+          diceRef.current = object;
+          scene.add(object);
+        },
+        function (xhr: any) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error: any) {
+          console.log('An error happened');
+        }
+      );
+
+      const renderScene = () => {
+        renderer.render(scene, camera);
+        requestAnimationFrame(renderScene);
+      };
+
+      renderScene();
+
+      const handleResize = () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(width, height);
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      }
+    }
+  }, []);
+
+  const rollDice = () => {
+    if (diceRef.current) {
+      diceRef.current.rotation.x += Math.random() * 2 * Math.PI;
+      diceRef.current.rotation.y += Math.random() * 2 * Math.PI;
+      diceRef.current.rotation.z += Math.random() * 2 * Math.PI;
+
+      // náhodný text, děkuji chatgpt
+      const texts = [
+        "Jdi zkusit šerm.",
+        "Jdi na výlet.",
+        "Přečti knihu.",
+        "Zkus něco nového.",
+        "Vychutnej si kávu.",
+        "Prozkoumej město.",
+        "Zatanči si.",
+        "Napiš dopis.",
+        "Jdi na koncert.",
+        "Přejeď na kole.",
+        "Zahraj si hru.",
+        "Podívej se na film.",
+        "Navštiv muzeum.",
+        "Zkus nový recept.",
+        "Přečti si článek.",
+        "Podívej se na hvězdy.",
+        "Navštiv přátele.",
+        "Udělej si relaxaci.",
+        "Zajdi na trh.",
+        "Zkus meditaci.",
+        "Jdi na procházku."
+    ];
+
+    const getRandomText = () => {
+      const randomIndex = Math.floor(Math.random() * texts.length);
+      return texts[randomIndex];
+  };
+
+      diceRef.current.traverse(function (child: any) {
+        if (child.isMesh) {
+          const texture = new THREE.CanvasTexture(createTextTexture(getRandomText()));
+          child.material.map = texture;
+          child.material.needsUpdate = true;
+        }
+      });
+    }
+  };
+
+  const createTextTexture = (text: string) => {
+    let textDiv = document.getElementById('textTextureDiv');
+
+    if (!textDiv) {
+        textDiv = document.createElement('div');
+        textDiv.id = 'textTextureDiv';
+        textDiv.style.position = 'absolute';
+        textDiv.style.color = "white";
+        textDiv.style.padding = "10px";
+        textDiv.style.top = '50%';
+        textDiv.style.left = '50%';
+        textDiv.style.transform = 'translate(-50%, -50%)';
+        textDiv.style.textAlign = 'center';
+        document.body.appendChild(textDiv);
+    }
+
+    textDiv.innerHTML = text;
+};
+
+  return (
+    <div className="relative flex items-center justify-center min-h-screen bg-gray-100">
+      <main ref={containerRef} className="w-full h-full" />
+      <button 
+        onClick={rollDice} 
+        className="absolute right-4 top-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition duration-300"
+      >
+        Roll Dice
+      </button>
+    </div>
   );
 }
