@@ -117,7 +117,6 @@ const ThreeDice = () => {
 
   const rollDice = () => {
     if (diceRef.current) {
-  
       const getRandomText = () => {
         const randomIndex = Math.floor(Math.random() * texts.length);
         return texts[randomIndex];
@@ -132,13 +131,22 @@ const ThreeDice = () => {
         });
       };
   
+      // Random target rotation
       const targetRotation = {
         x: diceRef.current.rotation.x + Math.random() * 2 * Math.PI,
         y: diceRef.current.rotation.y + Math.random() * 2 * Math.PI,
         z: diceRef.current.rotation.z + Math.random() * 2 * Math.PI
       };
   
-      const duration = 10000;
+      const initialPosition = { ...diceRef.current.position };
+      const maxDistance = 1;
+      const targetPosition = {
+        x: (Math.random() - 0.5) * 2 * maxDistance,
+        y: (Math.random() - 0.5) * 2 * maxDistance,
+        z: (Math.random() - 0.5) * 2 * maxDistance
+      };
+  
+      const duration = 3000;
       const startTime = performance.now();
   
       const animate = (time: number) => {
@@ -149,7 +157,14 @@ const ThreeDice = () => {
         diceRef.current.rotation.y = THREE.MathUtils.lerp(diceRef.current.rotation.y, targetRotation.y, progress);
         diceRef.current.rotation.z = THREE.MathUtils.lerp(diceRef.current.rotation.z, targetRotation.z, progress);
   
-        if (progress < 0.1) {
+        const middleProgress = Math.min(progress * 2, 1);
+        const returnProgress = Math.max((progress - 0.5) * 2, 0);
+  
+        diceRef.current.position.x = THREE.MathUtils.lerp(initialPosition.x, targetPosition.x, middleProgress) * (1 - returnProgress);
+        diceRef.current.position.y = THREE.MathUtils.lerp(initialPosition.y, targetPosition.y, middleProgress) * (1 - returnProgress);
+        diceRef.current.position.z = THREE.MathUtils.lerp(initialPosition.z, targetPosition.z, middleProgress) * (1 - returnProgress);
+  
+        if (progress < 1) {
           animationId = requestAnimationFrame(animate);
         } else {
           updateDiceText();

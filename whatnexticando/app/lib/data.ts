@@ -8,6 +8,7 @@ import {
   Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
+import {hash} from "bcryptjs";
 
 export async function fetchRevenue() {
   try {
@@ -213,5 +214,27 @@ export async function fetchFilteredCustomers(query: string) {
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch customer table.');
+  }
+}
+
+export async function createUserDB(
+  name: string,
+  email: string,
+  password: string
+): Promise<string> {
+  try {
+    // Hash the password
+    const hashedPassword = await hash(password, 10);
+
+    // Insert the new user into the database
+    await sql`
+      INSERT INTO users (name, email, password)
+      VALUES (${name}, ${email}, ${hashedPassword})
+    `;
+
+    return 'User created successfully!';
+  } catch (error) {
+    console.error('Database Error:', error);
+    return 'Failed to create user.';
   }
 }

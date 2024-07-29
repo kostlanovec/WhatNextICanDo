@@ -7,7 +7,7 @@ export default function Page() {
     <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-r from-slate-900 to-slate-800">
       <ThreeDice />
       <Link
-        className="absolute left-4 top-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition duration-300"
+        className="absolute left-4 top-4 px-4 py-2 outline outline-offset-2 outline-white-500 text-white rounded transition duration-300 hover:outline-blue-300 hover:text-blue-300"
         href="/dashboard"
       >
         Rozvoj
