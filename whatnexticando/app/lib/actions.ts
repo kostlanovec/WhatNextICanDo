@@ -60,4 +60,3 @@ export async function authenticate(
       return 'Error creating user.';
     }
   }
-  

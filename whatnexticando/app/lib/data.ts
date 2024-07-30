@@ -1,16 +1,15 @@
 import { sql } from '@vercel/postgres';
-import {
+/*import {
   CustomerField,
   CustomersTableType,
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
   Revenue,
-} from './definitions';
-import { formatCurrency } from './utils';
+} from './definitions';*/
 import {hash} from "bcryptjs";
 
-export async function fetchRevenue() {
+/*export async function fetchRevenue() {
   try {
     // Artificially delay a response for demo purposes.
     // Don't do this in production :)
@@ -216,17 +215,15 @@ export async function fetchFilteredCustomers(query: string) {
     throw new Error('Failed to fetch customer table.');
   }
 }
-
+*/
 export async function createUserDB(
   name: string,
   email: string,
   password: string
 ): Promise<string> {
   try {
-    // Hash the password
     const hashedPassword = await hash(password, 10);
 
-    // Insert the new user into the database
     await sql`
       INSERT INTO users (name, email, password)
       VALUES (${name}, ${email}, ${hashedPassword})
