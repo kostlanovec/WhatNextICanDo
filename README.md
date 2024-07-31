@@ -1,3 +1,5 @@
-# WhatNextICanDo
+## Next.js App Router Course - Starter
 
-Don't know what to try, what to do, or how to get started? That's why I created WhatNextICanDo. It’s a unique minimalist tool that inspires you with new ideas every day.
+This is the starter template for the Next.js App Router Course. It contains the starting code for the dashboard application.
+
+For more information, see the [course curriculum](https://nextjs.org/learn) on the Next.js Website.
