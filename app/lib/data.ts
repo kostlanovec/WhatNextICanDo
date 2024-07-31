@@ -7,7 +7,7 @@ import { sql } from '@vercel/postgres';
   LatestInvoiceRaw,
   Revenue,
 } from './definitions';*/
-import {hash} from "bcryptjs";
+import {hash} from "bcrypt-ts";
 
 /*export async function fetchRevenue() {
   try {
