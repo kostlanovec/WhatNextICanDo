@@ -3,8 +3,7 @@
 
 import { useRef, useEffect } from "react";
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
 const ThreeDice = () => {
     const texts = [
@@ -123,7 +122,7 @@ const ThreeDice = () => {
       };
   
       const updateDiceText = () => {
-        diceRef.current.traverse(function (child: any) {
+        diceRef.current?.traverse(function (child: any) {
           if (child.isMesh) {
             const texture = new THREE.CanvasTexture(createTextTexture(getRandomText()));
             child.material.map = texture;
@@ -153,16 +152,19 @@ const ThreeDice = () => {
         const elapsed = time - startTime;
         const progress = Math.min(elapsed / duration, 1);
   
-        diceRef.current.rotation.x = THREE.MathUtils.lerp(diceRef.current.rotation.x, targetRotation.x, progress);
-        diceRef.current.rotation.y = THREE.MathUtils.lerp(diceRef.current.rotation.y, targetRotation.y, progress);
-        diceRef.current.rotation.z = THREE.MathUtils.lerp(diceRef.current.rotation.z, targetRotation.z, progress);
-  
-        const middleProgress = Math.min(progress * 2, 1);
-        const returnProgress = Math.max((progress - 0.5) * 2, 0);
-  
-        diceRef.current.position.x = THREE.MathUtils.lerp(initialPosition.x, targetPosition.x, middleProgress) * (1 - returnProgress);
-        diceRef.current.position.y = THREE.MathUtils.lerp(initialPosition.y, targetPosition.y, middleProgress) * (1 - returnProgress);
-        diceRef.current.position.z = THREE.MathUtils.lerp(initialPosition.z, targetPosition.z, middleProgress) * (1 - returnProgress);
+        if (diceRef.current) {
+          diceRef.current.rotation.x = THREE.MathUtils.lerp(diceRef.current.rotation.x, targetRotation.x, progress);
+          diceRef.current.rotation.y = THREE.MathUtils.lerp(diceRef.current.rotation.y, targetRotation.y, progress);
+          diceRef.current.rotation.z = THREE.MathUtils.lerp(diceRef.current.rotation.z, targetRotation.z, progress);
+      
+          const middleProgress = Math.min(progress * 2, 1);
+          const returnProgress = Math.max((progress - 0.5) * 2, 0);
+      
+          diceRef.current.position.x = THREE.MathUtils.lerp(initialPosition.x, targetPosition.x, middleProgress) * (1 - returnProgress);
+          diceRef.current.position.y = THREE.MathUtils.lerp(initialPosition.y, targetPosition.y, middleProgress) * (1 - returnProgress);
+          diceRef.current.position.z = THREE.MathUtils.lerp(initialPosition.z, targetPosition.z, middleProgress) * (1 - returnProgress);
+      }
+      
   
         if (progress < 1) {
           animationId = requestAnimationFrame(animate);
@@ -178,24 +180,31 @@ const ThreeDice = () => {
     }
   };
 
-  const createTextTexture = (text: string) => {
-    let textDiv = document.getElementById('textTextureDiv');
+  const createTextTexture = (text: string): HTMLCanvasElement => {
+    const canvas = document.createElement('canvas');
+    const size = 256; // Set canvas size
+    canvas.width = size;
+    canvas.height = size;
 
-    if (!textDiv) {
-        textDiv = document.createElement('div');
-        textDiv.id = 'textTextureDiv';
-        textDiv.style.position = 'absolute';
-        textDiv.style.color = "white";
-        textDiv.style.padding = "10px";
-        textDiv.style.top = '50%';
-        textDiv.style.left = '50%';
-        textDiv.style.transform = 'translate(-50%, -50%)';
-        textDiv.style.textAlign = 'center';
-        document.body.appendChild(textDiv);
+    const context = canvas.getContext('2d');
+    if (context) {
+        // Background color (optional)
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, size, size);
+
+        // Text settings
+        context.fillStyle = 'white';
+        context.font = '48px Arial'; // Adjust font size and style
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+
+        // Draw text
+        context.fillText(text, size / 2, size / 2);
     }
 
-    textDiv.innerHTML = text;
-  };
+    return canvas;
+};
+
 
   const ClearText =() => {
     let textDiv = document.getElementById('textTextureDiv');
