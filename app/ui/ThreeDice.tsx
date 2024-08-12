@@ -124,8 +124,7 @@ const ThreeDice = () => {
       const updateDiceText = () => {
         diceRef.current?.traverse(function (child: any) {
           if (child.isMesh) {
-            const texture = new THREE.CanvasTexture(createTextTexture(getRandomText()));
-            child.material.map = texture;
+            createTextTexture(getRandomText());
           }
         });
       };
@@ -180,31 +179,24 @@ const ThreeDice = () => {
     }
   };
 
-  const createTextTexture = (text: string): HTMLCanvasElement => {
-    const canvas = document.createElement('canvas');
-    const size = 256; // Set canvas size
-    canvas.width = size;
-    canvas.height = size;
+  const createTextTexture = (text: string) => {
+    let textDiv = document.getElementById('textTextureDiv');
 
-    const context = canvas.getContext('2d');
-    if (context) {
-        // Background color (optional)
-        context.fillStyle = 'black';
-        context.fillRect(0, 0, size, size);
-
-        // Text settings
-        context.fillStyle = 'white';
-        context.font = '48px Arial'; // Adjust font size and style
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-
-        // Draw text
-        context.fillText(text, size / 2, size / 2);
+    if (!textDiv) {
+        textDiv = document.createElement('div');
+        textDiv.id = 'textTextureDiv';
+        textDiv.style.position = 'absolute';
+        textDiv.style.color = "white";
+        textDiv.style.padding = "10px";
+        textDiv.style.top = '50%';
+        textDiv.style.left = '50%';
+        textDiv.style.transform = 'translate(-50%, -50%)';
+        textDiv.style.textAlign = 'center';
+        document.body.appendChild(textDiv);
     }
 
-    return canvas;
-};
-
+    textDiv.innerHTML = text;
+  };
 
   const ClearText =() => {
     let textDiv = document.getElementById('textTextureDiv');
